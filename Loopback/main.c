@@ -81,7 +81,14 @@ void delay_ms(__IO uint32_t nCount)
 
 void SSP0_Master_Init(void) {
     SSP_InitTypeDef SSP_InitStructure;
-    
+	/*
+	<SSP0 PORT & PIN NUMBER>
+	- SSP0 SSEL (PA.05) pin
+    - SSP0 SCLK (PA.06) pin 
+    - SSP0 MISO (PA.07) pin 
+    - SSP0 MOSI (PA.08) pin 
+    */
+	
     /* SSP0 Init -- SSP Master */ 
     SSP_StructInit(&SSP_InitStructure);
     SSP_InitStructure.SSP_FrameFormat  = SSP_FrameFormat_MO; // Motorora SPI mode
@@ -93,7 +100,14 @@ void SSP0_Master_Init(void) {
 
 void SSP1_Slave_Init(void) {
     SSP_InitTypeDef SSP_InitStructure;
-    
+	/*
+	<SSP1 PORT & PIN NUMBER>
+	- SSP1 SSEL (PB.00) Pin
+    - SSP1 SCLK (PB.01) Pin
+    - SSP1 MISO (PB.02) Pin
+    - SSP1 MOSI (PB.03) Pin
+	*/
+	
     /* SSP1 Init -- SSP Slave */
     SSP_StructInit(&SSP_InitStructure);
     SSP_InitStructure.SSP_DataSize = SSP_DataSize_16b;
