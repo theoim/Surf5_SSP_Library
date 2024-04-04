@@ -1,6 +1,6 @@
 /**
   ******************************************************************************
-  * @file    SSP/Loopback/main.c 
+  * @file    SSP/SSP_Master/main.c 
   * @author  WIZnet
   * @brief   Main program body
   ******************************************************************************
@@ -25,7 +25,7 @@
 void delay_ms(__IO uint32_t nCount);
 static void UART_Config(void);
 void SSP0_Master_Init(void);
-void SSP1_Slave_Init(void);                                  
+                            
 /* Private functions ---------------------------------------------------------*/
 
 /**
@@ -35,10 +35,6 @@ int main()
 {
 
     uint16_t masterTxData = 0x0000; 
-    uint16_t slaveRxData = 0;
-    uint16_t cnt_recv_fail = 0;
-    uint16_t cnt_recv_success = 0; 
-
     /* Set Systme init */
     SystemInit();
 
@@ -49,39 +45,16 @@ int main()
     printf("SourceClock : %d\r\n", (int) GetSourceClock());    
     printf("SystemClock : %d\r\n", (int) GetSystemClock());
 
-     SSP0_Master_Init();
-     SSP1_Slave_Init();
+    SSP0_Master_Init();
 
     int i = 0;
 
     for(i = 0; i < 500; i++){
-    printf("\n\r[%d Count SSP TEST]\r\n",i+1);
-    
-    SSP_SendData(SSP0, masterTxData);
-    
-    while(SSP_GetFlagStatus(SSP1, SSP_FLAG_RNE) != SET); 
-    
-    slaveRxData = SSP_ReceiveData(SSP1);
-
-    printf("masterTxData: %#04x\r\n", masterTxData);
-    printf("slaveRxData: %#04x\r\n", slaveRxData);
-
-        if(slaveRxData == masterTxData) {
-            printf("\nSSP Passed!!\r\n\r\n");
-            masterTxData++;
-            cnt_recv_success++;
-        } else {
-            printf("\nSSP Failed!!\r\n\r\n");
-            cnt_recv_fail++;
-        }
-    }
-
-    printf("\n\r[SSP TEST RESULT]\r\n");
-    printf("SSP Pass Count : %d\r\n",cnt_recv_success);
-    printf("SSP Fail Count : %d\r\n",cnt_recv_fail);
-
+        SSP_SendData(SSP0, masterTxData);                   //Master Data Send
+        printf("masterTxData: %#04x\r\n", masterTxData);    //Master Data Print
+        masterTxData++;                                     //Increment the master data value by one
+    }   
 }
-
 
 /**
   * @brief  Delay Function
@@ -110,24 +83,6 @@ void SSP0_Master_Init(void) {
     SSP_Init(SSP0,&SSP_InitStructure);
     SSP_Cmd(SSP0, ENABLE);
 
-}
-
-void SSP1_Slave_Init(void) {
-    SSP_InitTypeDef SSP_InitStructure;
-	/*
-	<SSP1 PORT & PIN NUMBER>
-	- SSP1 SSEL (PB.00) Pin
-    - SSP1 SCLK (PB.01) Pin
-    - SSP1 MISO (PB.02) Pin
-    - SSP1 MOSI (PB.03) Pin
-	*/
-	
-    /* SSP1 Init -- SSP Slave */
-    SSP_StructInit(&SSP_InitStructure);
-    SSP_InitStructure.SSP_DataSize = SSP_DataSize_16b;
-    SSP_InitStructure.SSP_Mode = SSP_Mode_Slave; // SSP1 = Slave
-    SSP_Init(SSP1,&SSP_InitStructure);
-    SSP_Cmd(SSP1, ENABLE);
 }
 
 static void UART_Config(void)

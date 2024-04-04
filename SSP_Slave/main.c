@@ -1,6 +1,6 @@
 /**
   ******************************************************************************
-  * @file    SSP/Loopback/main.c 
+  * @file    SSP/SSP_Slave/main.c 
   * @author  WIZnet
   * @brief   Main program body
   ******************************************************************************
@@ -24,7 +24,6 @@
 /* Private function prototypes -----------------------------------------------*/
 void delay_ms(__IO uint32_t nCount);
 static void UART_Config(void);
-void SSP0_Master_Init(void);
 void SSP1_Slave_Init(void);                                  
 /* Private functions ---------------------------------------------------------*/
 
@@ -33,11 +32,7 @@ void SSP1_Slave_Init(void);
   */
 int main()
 {
-
-    uint16_t masterTxData = 0x0000; 
     uint16_t slaveRxData = 0;
-    uint16_t cnt_recv_fail = 0;
-    uint16_t cnt_recv_success = 0; 
 
     /* Set Systme init */
     SystemInit();
@@ -49,37 +44,16 @@ int main()
     printf("SourceClock : %d\r\n", (int) GetSourceClock());    
     printf("SystemClock : %d\r\n", (int) GetSystemClock());
 
-     SSP0_Master_Init();
-     SSP1_Slave_Init();
-
+    SSP1_Slave_Init();
     int i = 0;
+    for(i=0; i<5000;i++){
 
-    for(i = 0; i < 500; i++){
-    printf("\n\r[%d Count SSP TEST]\r\n",i+1);
-    
-    SSP_SendData(SSP0, masterTxData);
-    
-    while(SSP_GetFlagStatus(SSP1, SSP_FLAG_RNE) != SET); 
-    
+    while(SSP_GetFlagStatus(SSP1, SSP_FLAG_RNE) == RESET);
+
     slaveRxData = SSP_ReceiveData(SSP1);
 
-    printf("masterTxData: %#04x\r\n", masterTxData);
     printf("slaveRxData: %#04x\r\n", slaveRxData);
-
-        if(slaveRxData == masterTxData) {
-            printf("\nSSP Passed!!\r\n\r\n");
-            masterTxData++;
-            cnt_recv_success++;
-        } else {
-            printf("\nSSP Failed!!\r\n\r\n");
-            cnt_recv_fail++;
-        }
     }
-
-    printf("\n\r[SSP TEST RESULT]\r\n");
-    printf("SSP Pass Count : %d\r\n",cnt_recv_success);
-    printf("SSP Fail Count : %d\r\n",cnt_recv_fail);
-
 }
 
 
@@ -91,25 +65,6 @@ void delay_ms(__IO uint32_t nCount)
     volatile uint32_t delay = nCount * 2500;  // approximate loops per ms at 24 MHz, Debug config
     for(; delay != 0; delay--)
         __NOP();
-}
-
-void SSP0_Master_Init(void) {
-    SSP_InitTypeDef SSP_InitStructure;
-	/*
-	<SSP0 PORT & PIN NUMBER>
-	- SSP0 SSEL (PA.05) pin
-    - SSP0 SCLK (PA.06) pin 
-    - SSP0 MISO (PA.07) pin 
-    - SSP0 MOSI (PA.08) pin 
-    */
-	
-    /* SSP0 Init -- SSP Master */   
-    SSP_StructInit(&SSP_InitStructure);
-    SSP_InitStructure.SSP_FrameFormat  = SSP_FrameFormat_MO; // Motorora SPI mode
-    SSP_InitStructure.SSP_DataSize = SSP_DataSize_16b;
-    SSP_Init(SSP0,&SSP_InitStructure);
-    SSP_Cmd(SSP0, ENABLE);
-
 }
 
 void SSP1_Slave_Init(void) {
